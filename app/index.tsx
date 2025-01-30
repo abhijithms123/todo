@@ -5,7 +5,7 @@ import { ThemeContext } from "@/context/ThemeContext";
 import { data } from "@/data/todos";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {Inter_500Medium, useFonts} from '@expo-google-fonts/inter';
-import  Animated, {LinearTransition} from "react-native-reanimated";
+import  Animated, {FadeIn, FadeOut, LinearTransition} from "react-native-reanimated";
 import Octicons from '@expo/vector-icons/Octicons';
 import { Colors } from "@/constants/Colors";
 export default function Index() {
@@ -44,7 +44,10 @@ export default function Index() {
   }
 
   const renderItem = ({ item }: any) => (
-    <View style={styles.todoItem}>
+    <Animated.View 
+    entering={FadeIn.duration(500)}
+    exiting={FadeOut.duration(300)}
+    style={styles.todoItem}>
       <Text
         style={[styles.todoText, item.isCompleted && styles.completedText]}
         onPress={() => toggleTodo(item.id)}>
@@ -53,7 +56,7 @@ export default function Index() {
       <Pressable>
         <MaterialCommunityIcons name="delete-circle" size={30} color="red" selectable={undefined} onPress={() => removeTodo(item.id)}/>
       </Pressable>
-    </View>
+    </Animated.View>
   )
 
   return (
@@ -78,7 +81,7 @@ export default function Index() {
        data={todos}
        renderItem={ renderItem}
        keyExtractor={todo=>todo.id.toString()}
-       contentContainerStyle={{flexGrow: 1, padding: 10}}
+       contentContainerStyle={{flexGrow: 1, paddingBottom: 10}}
        itemLayoutAnimation={LinearTransition}
        keyboardDismissMode="on-drag"/>
 
@@ -131,8 +134,8 @@ function createStyles(theme:typeof Colors.light | typeof Colors.dark,colorScheme
       padding: 10,
       maxWidth: 1024,
       marginHorizontal: "auto",
-      // borderBottomColor: "gray",
-      // borderBottomWidth: 1,
+      borderBottomColor: "gray",
+      borderBottomWidth: 1,
       width: "100%",
       pointerEvents: "auto"
     }
