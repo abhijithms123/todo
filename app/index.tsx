@@ -98,7 +98,7 @@ export default function Index() {
        data={todos}
        renderItem={ renderItem}
        keyExtractor={todo=>todo.id.toString()}
-       contentContainerStyle={{flexGrow: 1, paddingBottom: 10}}
+       contentContainerStyle={{flexGrow: 1, padding:10}}
        itemLayoutAnimation={LinearTransition}
        keyboardDismissMode="on-drag"/>
 
