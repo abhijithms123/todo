@@ -185,6 +185,7 @@ function createStyles(theme:typeof Colors.light | typeof Colors.dark,colorScheme
       fontSize: 16,
       color: theme.text,
       fontFamily:"Inter_500Medium",
+      marginRight:5,
     },
     completedText: {
       textDecorationLine: "line-through",
