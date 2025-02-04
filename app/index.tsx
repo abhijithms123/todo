@@ -6,9 +6,12 @@ import { data } from "@/data/todos";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {Inter_500Medium, useFonts} from '@expo-google-fonts/inter';
 import  Animated, {FadeIn, FadeOut, LinearTransition} from "react-native-reanimated";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from '@expo/vector-icons/Octicons';
 import { Colors } from "@/constants/Colors";
 import { LinearGradient } from "expo-linear-gradient";
+import DropdownMenu from "@/components/DropdownMenu";
+import MenuOption from "@/components/MenuOption"
 export default function Index() {
    
   const [todos, setTodos] = useState(data.sort((a,b) => b.id - a.id));
@@ -27,9 +30,19 @@ export default function Index() {
   const addTodo = () => {
     if(text.trim()){
       const newId = todos.length > 0 ? todos[0].id + 1: 1;
-      setTodos([{id: newId, title: text, isCompleted: false}, ...todos]);
+      setTodos([{
+        id: newId, title: text, isCompleted: false,
+        dropdownVisible: false
+      }, ...todos]);
       setText('');
     }
+  }
+
+  const updateTodo = (id:number,text:string) => {
+    setText(text);
+    setTodos(
+      todos.map((todo)=>todo.id === id? {...todo,title: text}:todo)
+    );
   }
 
   const toggleTodo = (id: number) => {
@@ -37,8 +50,22 @@ export default function Index() {
       todos.map((todo) =>
         todo.id === id ? { ...todo, isCompleted: !todo.isCompleted } : todo
       )
-    )
+    );
   }
+
+  const toggleDropdown = (id: number) => {
+    console.log("inside toggle dropdown");
+    
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, dropdownVisible: true } : todo
+      )
+    );
+  }
+
+  const closeAllDropdowns = () => {
+    setTodos(todos.map(todo => ({ ...todo, dropdownVisible: false})));
+  };
 
   const removeTodo = (id: number) => {
     setTodos(todos.filter((todo) => todo.id !== id));
@@ -54,9 +81,36 @@ export default function Index() {
         onPress={() => toggleTodo(item.id)}>
         {item.title}
       </Text>
-      <Pressable>
+      {/* <Pressable>
         <MaterialCommunityIcons name="delete-circle" size={30} color="red" selectable={undefined} onPress={() => removeTodo(item.id)} />
-      </Pressable>
+      </Pressable> */}
+      <View style={{marginRight:20}}>
+        <DropdownMenu
+       visible={item.dropdownVisible}
+       handleOpen={() => toggleDropdown(item.id)}
+       handleClose={() => closeAllDropdowns}
+       trigger = {
+        <View>
+          <MaterialCommunityIcons name="menu" size={24} color="purple" />
+        </View>
+       }
+       dropdownWidth={100}
+      >
+        <MenuOption onSelect={()=>{
+          closeAllDropdowns();
+          // Handle edit logic
+        }}>
+             <Text>Edit</Text>
+        </MenuOption >
+        <MenuOption onSelect={()=>{
+           closeAllDropdowns();
+           removeTodo(item.id);
+        }}>
+           <Text>Delete</Text>
+        </MenuOption>
+      </DropdownMenu>
+      </View>
+      
     </Animated.View>
   )
 
