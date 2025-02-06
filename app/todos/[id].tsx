@@ -72,38 +72,42 @@ export default function EditScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-           <View style={styles.inputContainer}>
-               <TextInput
-               style = {styles.input}
-               maxLength={30}
-               placeholder="Edit Todo"
-               placeholderTextColor="gray"
-               value={todo?.title || ""}
-               onChangeText={(text:string) => setTodo(prev =>({...prev!,title:text}))}/>
+            <View style={styles.header}>
+                <Text style={styles.headerText}>Todo App</Text>
                 <Pressable
-            onPress={() => setColorScheme(colorScheme === 'light' ? 'dark' : 'light')}
-          >
-            {colorScheme === 'dark' ? (
-              <Octicons name="moon" size={36} color="white" selectable={undefined} />
-            ) : (
-              <Octicons name="sun" size={36} color="black" selectable={undefined} />
-            )}
-          </Pressable>
-           </View>
-           <View style={styles.inputContainer}>
-            <Pressable
-            onPress={handleSave}
-            style={styles.saveButton}>
-                <Text style={[styles.saveButtonText, { color: 'white' }]}>Save</Text>
-            </Pressable>
-            <Pressable  
-            onPress={() => router.push('/')}
-            style={[styles.saveButton, 
-            { backgroundColor: 'red' }]}>
-             <Text style={[styles.saveButtonText, { color: 'white' }]}>Cancel</Text>
-            </Pressable>
-           </View>
-           <StatusBar style = {colorScheme === "dark" ? "light": "dark"} />
+                    onPress={() => setColorScheme(colorScheme === 'light' ? 'dark' : 'light')}
+                >
+                    {colorScheme === 'dark' ? (
+                        <Octicons name="moon" size={36} color="white" selectable={undefined} />
+                    ) : (
+                        <Octicons name="sun" size={36} color="black" selectable={undefined} />
+                    )}
+                </Pressable>
+            </View>
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.input}
+                    maxLength={30}
+                    placeholder="Edit Todo"
+                    placeholderTextColor="gray"
+                    value={todo?.title || ""}
+                    onChangeText={(text: string) => setTodo(prev => ({ ...prev!, title: text }))} />
+            </View>
+            
+                <View style={styles.inputContainer}>
+                    <Pressable
+                        onPress={handleSave}
+                        style={styles.saveButton}>
+                        <Text style={[styles.saveButtonText, { color: 'white' }]}>Save</Text>
+                    </Pressable>
+                    <Pressable
+                        onPress={() => router.push('/')}
+                        style={[styles.saveButton,
+                        { backgroundColor: 'red' }]}>
+                        <Text style={[styles.saveButtonText, { color: 'white' }]}>Cancel</Text>
+                    </Pressable>
+                </View>
+            <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
         </SafeAreaView>
     )
 }
@@ -145,6 +149,21 @@ function createStyles(theme:typeof Colors.light | typeof Colors.dark,colorScheme
         saveButtonText: {
             fontSize: 18,
             color: colorScheme === 'dark' ? 'black' : 'white',
-        }
+        },
+        header: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: 16,
+            backgroundColor: theme.headerBackground,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.border,
+          },
+          headerText: {
+            fontSize: 24,
+            fontWeight: 'bold',
+            color: theme.text,
+            fontFamily: 'Inter_500Medium',
+          },
     })
 }
