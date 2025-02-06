@@ -1,12 +1,14 @@
-import { Text, View, TextInput, Pressable, StyleSheet, FlatList, ColorSchemeName } from "react-native";
+import { Text, View, TextInput, Pressable, StyleSheet,ColorSchemeName } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { ThemeContext } from "@/context/ThemeContext";
 import { data } from "@/data/todos";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {Inter_500Medium, useFonts} from '@expo-google-fonts/inter';
 import  Animated, {FadeIn, FadeOut, LinearTransition} from "react-native-reanimated";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StatusBar } from "expo-status-bar";
+import { useRouter} from "expo-router";
 import Octicons from '@expo/vector-icons/Octicons';
 import { Colors } from "@/constants/Colors";
 import { LinearGradient } from "expo-linear-gradient";
@@ -17,9 +19,44 @@ export default function Index() {
   const [todos, setTodos] = useState(data.sort((a,b) => b.id - a.id));
   const [text, setText] = useState('');
   const {colorScheme, setColorScheme,theme} = useContext(ThemeContext);
+  const router = useRouter();
   const [loaded, error] = useFonts({
     Inter_500Medium,
   })
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+         const jsonValue = await AsyncStorage.getItem("TodoApp")
+         const storageTodos = jsonValue != null ? JSON.parse(jsonValue) : null;
+         if(storageTodos && storageTodos.length){
+              setTodos(storageTodos.sort((a: { id: number; },b: { id: number; }) => b.id - a.id));
+         }
+         else {
+          setTodos(data.sort((a,b) => b.id - a.id));
+         }
+
+        }
+      catch(e){
+        console.error(e);
+      }
+    }
+    fetchData();
+  },[data]);
+
+  useEffect(() => {
+      const storeData = async () => {
+        try {
+              const jsonValue = JSON.stringify(todos);
+              await AsyncStorage.setItem("TodoApp", jsonValue);
+        }
+        catch(e){
+          console.error(e);
+          
+        }
+      }
+      storeData();
+  }, [todos])
 
   if(!loaded && !error) {
     return null;
@@ -32,7 +69,6 @@ export default function Index() {
       const newId = todos.length > 0 ? todos[0].id + 1: 1;
       setTodos([{
         id: newId, title: text, isCompleted: false,
-        dropdownVisible: false
       }, ...todos]);
       setText('');
     }
@@ -71,21 +107,29 @@ export default function Index() {
     setTodos(todos.filter((todo) => todo.id !== id));
   }
 
+  const handleLongPress = (id: number) => {
+    router.push(`/todos/${id}`);
+    // router.push("/todos/[id]",);
+  }
+
   const renderItem = ({ item }: any) => (
     <Animated.View 
     entering={FadeIn.duration(500)}
     exiting={FadeOut.duration(300)}
     style={styles.todoItem}>
+      <Pressable onPress={() => toggleTodo(item.id)}
+        onLongPress={() => handleLongPress(item.id)}>
       <Text
         style={[styles.todoText, item.isCompleted && styles.completedText]}
-        onPress={() => toggleTodo(item.id)}>
+        >
         {item.title}
       </Text>
-      {/* <Pressable>
+      </Pressable>
+      <Pressable>
         <MaterialCommunityIcons name="delete-circle" size={30} color="red" selectable={undefined} onPress={() => removeTodo(item.id)} />
-      </Pressable> */}
-      <View style={{marginRight:20}}>
-        <DropdownMenu
+      </Pressable>
+      {/* <View style={{marginRight:20}}> */}
+        {/* <DropdownMenu
        visible={item.dropdownVisible}
        handleOpen={() => toggleDropdown(item.id)}
        handleClose={() => closeAllDropdowns}
@@ -108,8 +152,8 @@ export default function Index() {
         }}>
            <Text>Delete</Text>
         </MenuOption>
-      </DropdownMenu>
-      </View>
+      </DropdownMenu> */}
+      {/* </View> */}
       
     </Animated.View>
   )
@@ -135,6 +179,7 @@ export default function Index() {
         </View>
       <View style={styles.inputContainer}>
         <TextInput style={styles.input}
+        maxLength={30}
         placeholder="Add a new Todo"
         placeholderTextColor="gray"
         value={text}
@@ -155,7 +200,7 @@ export default function Index() {
        contentContainerStyle={{flexGrow: 1, padding:10}}
        itemLayoutAnimation={LinearTransition}
        keyboardDismissMode="on-drag"/>
-
+       <StatusBar style={colorScheme == "dark" ?"light":"dark"} />
     </SafeAreaView>
     </LinearGradient>
   );
@@ -165,7 +210,7 @@ function createStyles(theme:typeof Colors.light | typeof Colors.dark,colorScheme
   return StyleSheet.create({
     container: {
       flex: 1,
-      // backgroundColor: theme.background
+      backgroundColor: theme.background
     },
     input: {
       flex: 1,
@@ -215,7 +260,7 @@ function createStyles(theme:typeof Colors.light | typeof Colors.dark,colorScheme
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      // gap: 4,
+      // gap: 20,
       padding: 16,
       marginHorizontal: "auto",
       marginVertical: 8,
@@ -239,7 +284,6 @@ function createStyles(theme:typeof Colors.light | typeof Colors.dark,colorScheme
       fontSize: 16,
       color: theme.text,
       fontFamily:"Inter_500Medium",
-      marginRight:5,
     },
     completedText: {
       textDecorationLine: "line-through",

@@ -1,15 +1,19 @@
-import { ReactNode ,} from "react";
+import { ReactNode, } from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
 
-const MenuOption = ({onSelect,children}:{onSelect: ()=> void; children: ReactNode}) => {
-      return (
+interface MenuOptionProps {
+    onSelect: () => void;
+    children: ReactNode
+}
+const MenuOption = ({ onSelect, children }: MenuOptionProps) => {
+    return (
         <TouchableOpacity onPress={onSelect} style={styles.menuOption}>{children}</TouchableOpacity>
-      );
+    );
 }
 
 export default MenuOption;
 
-const styles = StyleSheet.create({ 
+const styles = StyleSheet.create({
     menuOption: {
         padding: 5,
     }
